@@ -1,7 +1,10 @@
 import requests
 import random
-import string
+from _datetime import datetime
 import time
+
+def time_print(message):
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
 
 def load_dictionary(file_path):
     with open(file_path, 'r') as file:
@@ -43,8 +46,8 @@ def get_email(dictionary):
     data['email'] = email
 
     response = requests.post(url, headers=headers, data=data, allow_redirects=True)
-    print(f"Email: {email}")
-    print("Response Status:", response.status_code)
+    time_print(f"Email: {email}")
+    time_print(f"Response Status: {response.status_code}")
     return response.status_code
 
 if __name__ == "__main__":
@@ -53,26 +56,28 @@ if __name__ == "__main__":
     
     try:
         while True:
-            if failed >= 3:
-                print("Failed 3 times, sleeping for 5 minutes...")
+            if failed % 3 == 0 and failed != 0:
+                time_print("Failed 3 times, sleeping for 5 minutes...")
                 time.sleep(300)
-                failed = 0
-                success = 0
-            if success >= 5:
-                print("Success 5 times, sleeping for 5 minutes...")
+                # print current success and failed
+                time_print(f"Success: {success}")
+                time_print(f"Failed: {failed}")
+
+            if success % 5 == 0 and success != 0:
+                time_print("Success 5 times, sleeping for 5 minutes...")
                 time.sleep(300)
-                failed = 0
-                success = 0
+                time_print(f"Success: {success}")
+                time_print(f"Failed: {failed}")
             else:
                 if get_email(dictionary) == 200:
-                    print("Success!")
+                    time_print("Success!")
                     time.sleep(90)
                     failed = 0
                     success+=1
                 else:
                     failed+=1
-                    print("Failed!")
+                    time_print("Failed!")
                     time.sleep(180+failed*20)
     except KeyboardInterrupt:
-        print("Exiting...")
+        time_print("Exiting...")
         exit()
